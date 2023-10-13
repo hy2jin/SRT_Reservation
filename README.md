@@ -16,9 +16,9 @@
 
 1. settings.py 파일을 수정한다.
 2. gmail 설정<br/>
-   1. gmail 접속 후 우측 상단의 톱니바퀴 → 모든 설정 보기 클릭
+   1. gmail 접속 후 우측 상단의 톱니바퀴 → 모든 설정 보기 클릭<br/>
       ![IMG1](README/1.png)
-   2. 전달 및 POP/IMAP → IMAP 사용 체크 → 변경사항 저장
+   2. 전달 및 POP/IMAP → IMAP 사용 체크 → 변경사항 저장<br/>
       ![IMG2](README/2.png)
 
 <br/>
