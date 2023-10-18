@@ -1,8 +1,12 @@
 SRT_INFO = {
-    'ID': 'SRT회원번호',
-    'PW': 'SRT비밀번호'
+    'ID'    : '회원번호',
+    'PW'    : '비밀번호',
+    'FROM'  : '동탄',
+    'TO'    : '동대구',
+    'DATE'  : 20231015,
+    'TIME'  : 18
 }
 GMAIL_INFO = {
-    'ID': 'gmail주소',
-    'PW': 'gmail비밀번호'
+    'ID': 'Gmail 주소',
+    'PW': '비밀번호'
 }
