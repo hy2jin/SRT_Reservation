@@ -5,10 +5,9 @@
 1. python, Chrome<br/>
    python과 Chrome으로 동작하므로 둘 모두 설치되어 있어야 한다.
 
-2. pip install<br/>
+2. 필요한 패키지 설치하기<br/>
    ```bash
-   pip install selenium
-   pip install webdriver_manager
+   pip install -r requirements.txt
    ```
    <br/>
 
@@ -51,6 +50,9 @@
    현재는 3번째부터 2개를 확인할거라서 2로 되어있다.<br/>
    `int, trainToCheckNum = 2`
 4. `ReservationSRT.py`파일을 실행한다.
+   ```bash
+   python ReservationSRT.py
+   ```
 
 <br/>
 
