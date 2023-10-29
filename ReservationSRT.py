@@ -39,7 +39,7 @@ def login(driver, ID, PW):
     driver.implicitly_wait(5)
     return driver
 
-def searchTrain(driver, fromName: str, toName: str, targetDate: int, targetTime: int, trainToCheckNum = 3, wantReserve = False):
+def searchTrain(driver, fromName: str, toName: str, targetDate: int, targetTime: int, trainToCheckNum = 2, wantReserve = False):
     isBook = False      # 예약 됐는지 확인용
     refreshCount = 0    # 새로고침 횟수
 
@@ -72,7 +72,7 @@ def searchTrain(driver, fromName: str, toName: str, targetDate: int, targetTime:
     time.sleep(1)
 
     while True:
-        for i in range(4, 4 + trainToCheckNum):
+        for i in range(3, 3 + trainToCheckNum):
             seat = driver.find_element(By.CSS_SELECTOR, f"#result-form > fieldset > div.tbl_wrap.th_thead > table > tbody > tr:nth-child({i}) > td:nth-child(7)").text
             if "예약하기" in seat:
                 print("예약 가능")
