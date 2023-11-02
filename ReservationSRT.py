@@ -39,10 +39,7 @@ def login(driver, ID, PW):
     driver.implicitly_wait(5)
     return driver
 
-def searchTrain(driver, fromName: str, toName: str, targetDate: int, targetTime: int, trainToCheckNum = 2, wantReserve = False):
-    isBook = False      # 예약 됐는지 확인용
-    refreshCount = 0    # 새로고침 횟수
-
+def searchTrain(driver, fromName: str, toName: str, targetDate: int, targetTime: int):
     print("SRT 조회 페이지 접속")
     driver.get("https://etk.srail.kr/hpg/hra/01/selectScheduleList.do?pageId=TK0101010000")
     driver.implicitly_wait(5)
@@ -62,53 +59,58 @@ def searchTrain(driver, fromName: str, toName: str, targetDate: int, targetTime:
     eleTime = driver.find_element(By.ID, "dptTm")
     Select(eleTime).select_by_value(targetTime + "0000")
 
-    print("SRT 조회중...")
-    print(f"출발역:{fromName}, 도착역:{toName}\n날짜:{targetDate}, 시간:{targetTime}시 이후\n{trainToCheckNum}개의 기차 중 예약")
-    # print(f"예약 대기 사용: {wantReserve}")
+    print(f"출발역:{fromName}, 도착역:{toName}\n날짜:{targetDate}, 시간:{targetTime}시 이후 SRT 조회중...")
 
     searchBtn = driver.find_element(By.XPATH, '//*[@id="search_top_tag"]/input')
     searchBtn.click()
     driver.implicitly_wait(5)
     time.sleep(1)
+    
+    return driver
+
+
+def getTrain(driver, trainStartNum: int, trainCount: int):
+    isBook = False      # 예약 됐는지 확인용
+    refreshCount = 0    # 새로고침 횟수
 
     while True:
-        for i in range(3, 3 + trainToCheckNum):
+        for i in range(trainStartNum, trainStartNum + trainCount):
             seat = driver.find_element(By.CSS_SELECTOR, f"#result-form > fieldset > div.tbl_wrap.th_thead > table > tbody > tr:nth-child({i}) > td:nth-child(7)").text
             if "예약하기" in seat:
-                print("예약 가능")
+                print("예약 가능!!!!!!!!!!!!!!")
                 time.sleep(0.5)
-                # reservationBtn = driver.find_element(By.XPATH, '/html/body/div/div[4]/div/div[3]/div[1]/form/fieldset/div[6]/table/tbody/tr[5]/td[7]/a')
                 reservationBtn = driver.find_element(By.CSS_SELECTOR, f"#result-form > fieldset > div.tbl_wrap.th_thead > table > tbody > tr:nth-child({i}) > td:nth-child(7) > a")
                 reservationBtn.click()
                 isBook = True
                 break
         if isBook:
-            subprocess.call(['python', 'SendGmail.py', '--count', str(refreshCount)])
-            subprocess.call(['python', 'PlayBeep.py'])
-            break
-        else:
-            time.sleep(3)
-            submit = driver.find_element(By.XPATH, '//*[@id="search_top_tag"]/input')
-            driver.execute_script("arguments[0].click();", submit)
-            refreshCount += 1
-            print(f"새로고침 {refreshCount}회")
-            driver.implicitly_wait(10)
-            time.sleep(0.5)
-    return driver
+            return refreshCount
 
-def main():
-    driver = openChrome()
+        time.sleep(3)
+        searchBtn = driver.find_element(By.XPATH, '//*[@id="search_top_tag"]/input')
+        driver.execute_script("arguments[0].click();", searchBtn)
+        refreshCount += 1
+        print(f"새로고침 {refreshCount}회")
+        driver.implicitly_wait(10)
+        time.sleep(0.5)
 
-    ID = settings.SRT_INFO['ID']
-    PW = settings.SRT_INFO['PW']
-    driver = login(driver, ID, PW)
-    print("로그인 성공")
+
+driver = openChrome()
+
+ID = settings.SRT_INFO['ID']
+PW = settings.SRT_INFO['PW']
+driver = login(driver, ID, PW)
+print("로그인 성공")
     
-    FROM    = settings.SRT_INFO['FROM']
-    TO      = settings.SRT_INFO['TO']
-    DATE    = settings.SRT_INFO['DATE']
-    TIME    = settings.SRT_INFO['TIME']
-    searchTrain(driver, FROM, TO, DATE, TIME)
+FROM    = settings.SRT_INFO['FROM']
+TO      = settings.SRT_INFO['TO']
+DATE    = settings.SRT_INFO['DATE']
+TIME    = settings.SRT_INFO['TIME']
+driver = searchTrain(driver, FROM, TO, DATE, TIME)
 
-if __name__ == "__main__":
-    main()
+TRAIN_START_NUM = settings.SRT_INFO['TRAIN_START_NUM']
+TRAIN_COUNT = settings.SRT_INFO['TRAIN_COUNT']
+refreshCount = getTrain(driver, TRAIN_START_NUM, TRAIN_COUNT)
+
+subprocess.call(['python', 'SendGmail.py', '--count', str(refreshCount)])
+subprocess.call(['python', 'PlayBeep.py'])
