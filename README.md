@@ -16,16 +16,18 @@
 1. settings.py 파일을 수정한다.
 	```python
 	SRT_INFO = {
-		'ID'    : '회원번호',		# 문자열 형식
-		'PW'    : '비밀번호',		# 문자열 형식
+		'ID'    : '회원번호',	# 문자열 형식
+		'PW'    : '비밀번호',	# 문자열 형식
 		'FROM'  : '동탄',		# 문자열 형식, 출발지
 		'TO'    : '동대구',		# 문자열 형식, 도착지
 		'DATE'  : 20231015,		# 숫자, 조회날짜
-		'TIME'  : 18			# 숫자, 조회시간
+		'TIME'  : 18,			# 숫자
+		'TRAIN_START_NUM': 3,   # 버튼 확인할 기차가 몇번째 기차인가?
+		'TRAIN_COUNT': 2        # 몇개의 기차를 확인할건가?
 	}
 	GMAIL_INFO = {
 		'ID': 'Gmail 주소',	    # 문자열 형식
-		'PW': '비밀번호'		    # 문자열 형식
+		'PW': '비밀번호'		# 문자열 형식
 	}
 	```
 2. gmail 설정<br/>
@@ -41,14 +43,14 @@
 1. settings.py파일의 정보를 확인한다.<br/>
    값의 형식에 맞게 작성한다.<br/>
    조회시간은 홈페이지에 나와있는 시간 중에서 선택한다.
-2. searchTrain()함수의 while문 안에 있는 for문의 시작 숫자를 변경한다.<br/>
-   ex) 첫번째부터 예매하고 싶다면 1, 세번째부터 예매하고 싶다면 3<br/>
-   현재는 세번째부터 확인하도록 3으로 되어있다.<br/>
-   `for i in range(3, 3 + trainToCheckNum):`
-3. searchTrain()함수의 trainToCheckNum값을 원하는 값으로 변경한다.<br/>
-   ex) 두개를 확인하고 싶다면 2
-   현재는 3번째부터 2개를 확인할거라서 2로 되어있다.<br/>
-   `int, trainToCheckNum = 2`
+2. 예약 성공 후 메일을 받고싶지 않다면 다음 코드를 주석처리한다.
+   ```python
+   subprocess.call(['python', 'SendGmail.py', '--count', str(refreshCount)])
+   ```
+3. 예약 성공 후 현재 기기에서 알람소리를 듣고싶지 않다면 다음 코드를 주석처리한다.
+   ```python
+   subprocess.call(['python', 'PlayBeep.py'])
+   ```
 4. `ReservationSRT.py`파일을 실행한다.
    ```bash
    python ReservationSRT.py
