@@ -75,7 +75,10 @@ def getTrain(driver, trainStartNum: int, trainCount: int):
 
     while True:
         for i in range(trainStartNum, trainStartNum + trainCount):
-            seat = driver.find_element(By.CSS_SELECTOR, f"#result-form > fieldset > div.tbl_wrap.th_thead > table > tbody > tr:nth-child({i}) > td:nth-child(7)").text
+            try:
+                seat = driver.find_element(By.CSS_SELECTOR, f"#result-form > fieldset > div.tbl_wrap.th_thead > table > tbody > tr:nth-child({i}) > td:nth-child(7)").text
+            except:
+                continue
             if "예약하기" in seat:
                 print("예약 가능!!!!!!!!!!!!!!")
                 time.sleep(0.5)
@@ -86,13 +89,19 @@ def getTrain(driver, trainStartNum: int, trainCount: int):
         if isBook:
             return refreshCount
 
-        time.sleep(3)
-        searchBtn = driver.find_element(By.XPATH, '//*[@id="search_top_tag"]/input')
+        time.sleep(2)
+        while True:
+            try:
+                searchBtn = driver.find_element(By.XPATH, '//*[@id="search_top_tag"]/input')
+                break
+            except:
+                time.sleep(0.5)
+                pass
         driver.execute_script("arguments[0].click();", searchBtn)
         refreshCount += 1
         print(f"새로고침 {refreshCount}회")
         driver.implicitly_wait(10)
-        time.sleep(0.5)
+        time.sleep(2)
 
 
 driver = openChrome()
@@ -113,4 +122,4 @@ TRAIN_COUNT = settings.SRT_INFO['TRAIN_COUNT']
 refreshCount = getTrain(driver, TRAIN_START_NUM, TRAIN_COUNT)
 
 subprocess.call(['python', 'SendGmail.py', '--count', str(refreshCount)])
-subprocess.call(['python', 'PlayBeep.py'])
+# subprocess.call(['python', 'PlayBeep.py'])
