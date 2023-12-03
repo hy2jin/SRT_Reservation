@@ -15,7 +15,6 @@ def openChrome():
     #브라우저 꺼짐 방지 
     chrome_options = Options()
     chrome_options.add_experimental_option("detach", True)
-    # 불필요한 에러 메시지 없애기
     chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
     service = Service(ChromeDriverManager().install())
@@ -25,15 +24,15 @@ def openChrome():
     driver.get(loginUrl)
     driver.implicitly_wait(15)
 
-    print("브라우저 열기 성공")
+    print("브라우저 열기")
     return driver
 
 def login(driver, ID, PW):
     wait = WebDriverWait(driver, 30)    # 최대 30초까지 대기
     eleID = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div/div[4]/div/div[2]/form/fieldset/div[1]/div[1]/div[2]/div/div[1]/div[1]/input')))
-    eleID.send_keys(ID);print("ID 입력 성공")
+    eleID.send_keys(ID);print("ID 입력")
     elePW = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div/div[4]/div/div[2]/form/fieldset/div[1]/div[1]/div[2]/div/div[1]/div[2]/input')))
-    elePW.send_keys(PW);print("PW 입력 성공")
+    elePW.send_keys(PW);print("PW 입력")
     loginBtn = driver.find_element(By.XPATH, '/html/body/div/div[4]/div/div[2]/form/fieldset/div[1]/div[1]/div[2]/div/div[2]/input')
     loginBtn.click()
     driver.implicitly_wait(5)
@@ -80,14 +79,17 @@ def getTrain(driver, trainStartNum: int, trainCount: int):
             except:
                 continue
             if "예약하기" in seat:
-                print("예약 가능!!!!!!!!!!!!!!")
-                time.sleep(0.5)
+                print("예약 가능")
                 reservationBtn = driver.find_element(By.CSS_SELECTOR, f"#result-form > fieldset > div.tbl_wrap.th_thead > table > tbody > tr:nth-child({i}) > td:nth-child(7) > a")
                 reservationBtn.click()
                 isBook = True
                 break
         if isBook:
-            return refreshCount
+            checkAlert()
+            if checkSuccess():
+                return refreshCount
+            else:
+                pass
 
         time.sleep(2)
         while True:
@@ -104,13 +106,32 @@ def getTrain(driver, trainStartNum: int, trainCount: int):
         time.sleep(2)
 
 
+def checkAlert():
+    try:        # 열차 2개 어쩌고 확인하라는 팝업 알림창 확인하기
+        alert = driver.switch_to.alert
+        alert.accept()
+    except:     # 없으면 오류뱉지말고 return
+        return
+
+
+def checkSuccess():
+    try:
+        #wrap > div.container.container-e > div > div.sub_con_area > div.alert_box > strong
+        text = driver.find_element(By.CSS_SELECTOR, "#wrap > div.container.container-e > div > div.sub_con_area > div.alert_box")
+        text = text.text[:2]
+        if "10" == text:  # 10분 내에 결제하지 않으면 예약이 취소됩니다.
+            return True
+        else: return False
+    except: return False
+
+
 driver = openChrome()
 
 ID = settings.SRT_INFO['ID']
 PW = settings.SRT_INFO['PW']
 driver = login(driver, ID, PW)
-print("로그인 성공")
-    
+print("로그인 완료")
+
 FROM    = settings.SRT_INFO['FROM']
 TO      = settings.SRT_INFO['TO']
 DATE    = settings.SRT_INFO['DATE']
@@ -122,4 +143,4 @@ TRAIN_COUNT = settings.SRT_INFO['TRAIN_COUNT']
 refreshCount = getTrain(driver, TRAIN_START_NUM, TRAIN_COUNT)
 
 subprocess.call(['python', 'SendGmail.py', '--count', str(refreshCount)])
-# subprocess.call(['python', 'PlayBeep.py'])
+subprocess.call(['python', 'PlayBeep.py'])
