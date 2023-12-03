@@ -80,13 +80,13 @@ def getTrain(driver, trainStartNum: int, trainCount: int):
             except:
                 continue
             if "예약하기" in seat:
-                print("예약 가능!!!!!!!!!!!!!!")
-                time.sleep(0.5)
+                print("예약 가능")
                 reservationBtn = driver.find_element(By.CSS_SELECTOR, f"#result-form > fieldset > div.tbl_wrap.th_thead > table > tbody > tr:nth-child({i}) > td:nth-child(7) > a")
                 reservationBtn.click()
                 isBook = True
                 break
         if isBook:
+            checkAlert()
             return refreshCount
 
         time.sleep(2)
@@ -103,6 +103,12 @@ def getTrain(driver, trainStartNum: int, trainCount: int):
         driver.implicitly_wait(10)
         time.sleep(2)
 
+def checkAlert():
+    try:        # 열차 2개 어쩌고 확인하라는 팝업 알림창 확인하기
+        alert = driver.switch_to.alert
+        alert.accept()
+    except:     # 없으면 오류뱉지말고 return
+        return
 
 driver = openChrome()
 
@@ -121,5 +127,5 @@ TRAIN_START_NUM = settings.SRT_INFO['TRAIN_START_NUM']
 TRAIN_COUNT = settings.SRT_INFO['TRAIN_COUNT']
 refreshCount = getTrain(driver, TRAIN_START_NUM, TRAIN_COUNT)
 
-subprocess.call(['python', 'SendGmail.py', '--count', str(refreshCount)])
-# subprocess.call(['python', 'PlayBeep.py'])
+# subprocess.call(['python', 'SendGmail.py', '--count', str(refreshCount)])
+subprocess.call(['python', 'PlayBeep.py'])
