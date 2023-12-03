@@ -116,11 +116,13 @@ def checkAlert():
 
 def checkSuccess():
     try:
-        text = driver.find_element(By.CSS_SELECTOR, "#wrap > div.container.container-e > div > div.sub_con_area > div.alert_box").text
-        if "10분" in text:  # 10분 내에 결제하지 않으면 예약이 취소됩니다.
+        #wrap > div.container.container-e > div > div.sub_con_area > div.alert_box > strong
+        text = driver.find_element(By.CSS_SELECTOR, "#wrap > div.container.container-e > div > div.sub_con_area > div.alert_box")
+        text = text.text[:2]
+        if "10" == text:  # 10분 내에 결제하지 않으면 예약이 취소됩니다.
             return True
-    except:
-        return False
+        else: return False
+    except: return False
 
 
 driver = openChrome()
